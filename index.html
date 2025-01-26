@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Travel Alarm</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', Arial, sans-serif;
+      background: linear-gradient(135deg, #ffffff, #e6d8f1);
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .header, .footer {
+      text-align: center;
+      background: linear-gradient(90deg, #e130e1, #7b22d9);
+      color: white;
+      padding: 30px;
+      width: 100%;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .header {
+      border-radius: 0 0 20px 20px;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      margin: 0;
+    }
+
+    .header p {
+      font-size: 1.25rem;
+      margin: 10px 0 0;
+    }
+
+    .footer {
+      margin-top: auto;
+      border-radius: 20px 20px 0 0;
+    }
+
+    .content {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+      padding: 20px;
+      width: 90%;
+      max-width: 500px;
+      margin: 20px;
+      text-align: center;
+    }
+
+    input, select, button {
+      width: 100%;
+      max-width: 400px;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 2px solid #ddd;
+      border-radius: 10px;
+      font-size: 1rem;
+      box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    button {
+      background-color: #7b22d9;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s, box-shadow 0.3s;
+    }
+
+    button:hover {
+      background-color: #520ea3;
+      box-shadow: 0 6px 12px rgba(123, 34, 217, 0.6);
+    }
+
+    #alarm-box {
+      display: none;
+      padding: 15px;
+      margin-top: 10px;
+      background-color: rgb(217, 73, 236);
+      color: white;
+      border-radius: 10px;
+      font-weight: bold;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    #map {
+      height: 150px;
+      width: 100%;
+      border-radius: 20px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Travel Alarm</h1>
+    <p>Travel light. Sleep tight. Wake right.</p>
+  </div>
+
+  <div class="content">
+    <p>Travel Alarm is your ultimate companion for stress-free travel. Never miss
+        your stop again! Our web app tracks your live location and alerts you when
+        you're about to reach your destination, so you can relax and travel with confidence.</p>
+    <input type="text" id="destination" placeholder="Enter your destination" aria-label="Destination">
+    <select id="distance" aria-label="Alarm Distance">
+      <option value="2">2 km</option>
+      <option value="5">5 km</option>
+      <option value="10">10 km</option>
+    </select>
+    <button id="start-tracking">Start Tracking</button>
+    <div id="status"></div>
+    <div id="alarm-box">You are close to your destination!</div>
+    <div id="map"></div>
+  </div>
+
+  <div class="footer">HAPPY JOURNEY</div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    const apiKey = '56b23bebe3e54d20b5c18808df43f440';
+
+    const map = L.map('map').setView([0, 0], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    const userMarker = L.marker([0, 0]).addTo(map).bindPopup('Your location');
+    const destinationMarker = L.marker([0, 0]).addTo(map).bindPopup('Destination');
+
+    const alarm = new Audio('alarm.mp3'); // Path to your alarm file
+    alarm.loop = true;
+
+    async function getCoordinates(location) {
+      const response = await fetch(
+        `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(location)}&key=${apiKey}`
+      );
+      const data = await response.json();
+      if (data.results.length > 0) return data.results[0].geometry;
+      alert('Location not found. Please try again.');
+      throw new Error('Invalid location');
+    }
+
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371;
+      const dLat = ((lat2 - lat1) * Math.PI) / 180;
+      const dLon = ((lon2 - lon1) * Math.PI) / 180;
+      const a = Math.sin(dLat / 2) ** 2 +
+        Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLon / 2) ** 2;
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    document.getElementById('start-tracking').addEventListener('click', async () => {
+      const destination = document.getElementById('destination').value;
+      const alarmDistance = parseInt(document.getElementById('distance').value);
+
+      if (!destination) {
+        alert('Please enter your destination!');
+        return;
+      }
+
+      try {
+        const destinationCoords = await getCoordinates(destination);
+        destinationMarker.setLatLng([destinationCoords.lat, destinationCoords.lng]).openPopup();
+        map.setView([destinationCoords.lat, destinationCoords.lng]);
+
+        document.getElementById('status').innerText = 'Tracking started...';
+
+        if (navigator.geolocation) {
+          navigator.geolocation.watchPosition(
+            (position) => {
+              const { latitude, longitude } = position.coords;
+              userMarker.setLatLng([latitude, longitude]).openPopup();
+              const distance = calculateDistance(
+                latitude,
+                longitude,
+                destinationCoords.lat,
+                destinationCoords.lng
+              );
+
+              if (distance <= alarmDistance) {
+                document.getElementById('alarm-box').style.display = 'block';
+                alarm.play();
+
+                if (!document.querySelector('#stop-alarm')) {
+                  const stopButton = document.createElement('button');
+                  stopButton.id = 'stop-alarm';
+                  stopButton.textContent = 'Stop Alarm';
+                  stopButton.style.marginTop = '10px';
+                  stopButton.onclick = () => {
+                    alarm.pause();
+                    alarm.currentTime = 0;
+                    document.getElementById('alarm-box').style.display = 'none';
+                    stopButton.remove();
+                  };
+                  document.getElementById('alarm-box').appendChild(stopButton);
+                }
+              } else {
+                document.getElementById('status').innerText = `Current Distance: ${distance.toFixed(2)} km`;
+              }
+            },
+            (error) => {
+              console.error('Error getting location:', error);
+              alert('Error accessing location. Please allow location access.');
+            },
+            { enableHighAccuracy: true }
+          );
+        } else {
+          alert('Geolocation is not supported by your browser.');
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    });
+  </script>
+</body>
+</html>
+>
+
