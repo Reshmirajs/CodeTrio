@@ -1,4 +1,4 @@
-# [Project Name] 🎯
+# TRAVEL ALARM 🎯
 
 
 ## Basic Details
@@ -11,7 +11,7 @@
 - Member 3: Sneha Elza David - LBS Institute Of Technology For Women
 
 ### Hosted Project Link
-[mention your project hosted project link here]
+https://code-trio.vercel.app/
 
 ### Project Description
 The Travel Alarm is a web application designed to enhance your travel experience by providing location-based reminders. It utilizes the Geolocation API to track your current location in real-time. You can set your desired destination and choose an alarm distance (in kilometers). As you approach your destination within the chosen distance, an alarm is triggered to notify you. A user-friendly interface allows you to easily enter your destination, select an alarm distance, and view your current distance from the destination. This feature helps reduce travel anxiety and ensures you never miss your stop.
