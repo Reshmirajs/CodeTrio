@@ -70,14 +70,15 @@ Stop the alarm: Once the alarm is triggered, you can stop it by clicking the "St
 
 
 # Screenshots (Add at least 3)
-![Travel Alarm SS1]("C:\Users\Reshmi Raj\Desktop\Codetrio\CodeTrio\Screenshots\Traval Alarm SS1.png")
-The Main Interface of the Web App is shown here
 
+The Main Interface of the Web App is shown here![Traval Alarm SS1](https://github.com/user-attachments/assets/f88e341a-db54-4f37-b8d1-54cd796e8765)
 
-![Travel Alarm SS2]("C:\Users\Reshmi Raj\Desktop\Codetrio\CodeTrio\Screenshots\Traval Alarm SS2.png")
+![Traval Alarm SS2](https://github.com/user-attachments/assets/80219365-eb1b-44ea-8423-b76b9152c678)
+
 Selection of your destination and at what distance you want the alarm to go off is shown here
 
-![Travel Alarm SS3]("C:\Users\Reshmi Raj\Desktop\Codetrio\CodeTrio\Screenshots\Traval Alarm SS3.png")
+![Traval Alarm SS3](https://github.com/user-attachments/assets/cb86eca6-d506-41de-9ce1-51335dc9496f)
+
 In this Screenshot the alarm is ringing while displaying that we are close to our destination as well as a button to stop the alarm
 
 # Diagrams
